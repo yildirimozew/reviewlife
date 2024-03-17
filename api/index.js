@@ -81,3 +81,11 @@ app.post("/register", async (req, res) => {
 const server = app.listen(4000);
 
 const wss = new ws.WebSocketServer({server});
+
+wss.on("connection", (connection, req) => {
+    const cookies = req.headers.cookie;
+    if(cookies){
+        const tokenCookieString = cookies.split(";").find(str => str.startsWith("token="));
+        console.log(tokenCookieString);
+    }
+})

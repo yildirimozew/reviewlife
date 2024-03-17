@@ -1,11 +1,21 @@
-import { useState } from "react"
+import { useEffect, useState } from "react"
 
 export default function Page(){
     const[reviewText, setReviewText] = useState("");
+    const [ws, setWs] = useState(null);
+    useEffect(() => {
+        const ws = new WebSocket("ws://127.0.0.1:4000");
+        setWs(ws);
+        ws.addEventListener("message", handleMessage);
+    }, []);
+
+    function handleMessage(ev){
+        console.log("new message", ev);
+    }
 
     function sendReview(ev){
         ev.preventDefault();
-        ws.send();
+        //ws.send();
     }
     return(
         <div className="flex justify-center h-screen bg-green-100">
