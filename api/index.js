@@ -6,6 +6,7 @@ const jwt = require("jsonwebtoken");
 const bcrypt = require("bcryptjs");
 const dotenv = require("dotenv");
 const cors = require("cors");
+const ws = require("ws");
 dotenv.config();
 
 const bcrypt_salt = bcrypt.genSaltSync(10);
@@ -77,4 +78,6 @@ app.post("/register", async (req, res) => {
     }
 })
 
-app.listen(4000);
+const server = app.listen(4000);
+
+const wss = new ws.WebSocketServer({server});
