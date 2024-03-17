@@ -69,7 +69,7 @@ app.post("/register", async (req, res) => {
                 console.error("Error generating token:", err);
                 return res.status(500).json({ error: "Internal Server Error" });
             }
-            res.cookie("token", token, {sameSite:"none", secure: true}).status(201).json({
+            res.cookie("token", token, {sameSite:"None", secure: true}).status(201).json({
                 id: createdUser._id,
             });
         });
@@ -80,12 +80,20 @@ app.post("/register", async (req, res) => {
 
 const server = app.listen(4000);
 
-const wss = new ws.WebSocketServer({server});
+const wss = new ws.Server({server});
+app.use(cookie_parser());
 
 wss.on("connection", (connection, req) => {
+    /*NO COOKIES*/
+    console.log(req.headers);
     const cookies = req.headers.cookie;
     if(cookies){
         const tokenCookieString = cookies.split(";").find(str => str.startsWith("token="));
-        console.log(tokenCookieString);
+        if(tokenCookieString){
+            const token = tokenCookieString.split("=")[1];
+            if(token){
+                console.log(token);
+            }
+        }
     }
 })
