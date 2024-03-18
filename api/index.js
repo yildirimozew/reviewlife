@@ -80,20 +80,28 @@ app.post("/register", async (req, res) => {
 
 const server = app.listen(4000);
 
-const wss = new ws.Server({server});
+const wss = new ws.WebSocketServer({server});
 app.use(cookie_parser());
 
 wss.on("connection", (connection, req) => {
-    /*NO COOKIES*/
-    console.log(req.headers);
     const cookies = req.headers.cookie;
     if(cookies){
         const tokenCookieString = cookies.split(";").find(str => str.startsWith("token="));
         if(tokenCookieString){
             const token = tokenCookieString.split("=")[1];
             if(token){
-                console.log(token);
+                jwt.verify(token, jwtSecret, {}, (err, userData) => {
+                    if(err){throw err;}
+                    const {userId, username} = userData;
+                    connection.userId = userId;
+                    connection.username = username;
+                    /*we collect every client's userId and username in wss*/
+                });
             }
         }
     }
+})
+
+wss.on("message", (message) => {
+    console.log(message);
 })

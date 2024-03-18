@@ -15,7 +15,9 @@ export default function Page(){
 
     function sendReview(ev){
         ev.preventDefault();
-        //ws.send();
+        ws.send(JSON.stringify({
+            review : reviewText
+        }));
     }
     return(
         <div className="flex justify-center h-screen bg-green-100">
