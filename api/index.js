@@ -84,6 +84,7 @@ const wss = new ws.WebSocketServer({server});
 app.use(cookie_parser());
 
 wss.on("connection", (connection, req) => {
+    
     const cookies = req.headers.cookie;
     if(cookies){
         const tokenCookieString = cookies.split(";").find(str => str.startsWith("token="));
@@ -93,6 +94,7 @@ wss.on("connection", (connection, req) => {
                 jwt.verify(token, jwtSecret, {}, (err, userData) => {
                     if(err){throw err;}
                     const {userId, username} = userData;
+                    console.log(username);
                     connection.userId = userId;
                     connection.username = username;
                     /*we collect every client's userId and username in wss*/
@@ -100,8 +102,12 @@ wss.on("connection", (connection, req) => {
             }
         }
     }
+    connection.on("message", (message) => {
+        message = JSON.parse(message.toString());
+        const {review, opinion} = message;
+        if(!!review && !!opinion ){
+            [...wss.clients].forEach(c => c.send(JSON.stringify({review, opinion, senderId: c.userId, senderName: c.username})))
+        }
+    })
 })
 
-wss.on("message", (message) => {
-    console.log(message);
-})
