@@ -2,6 +2,7 @@ const express = require("express");
 const mongoose = require("mongoose");
 const cookie_parser = require("cookie-parser");
 const UserModel = require("./models/User.js");
+const ReviewModel = require("./models/Review.js");
 const jwt = require("jsonwebtoken");
 const bcrypt = require("bcryptjs");
 const dotenv = require("dotenv");
@@ -94,7 +95,6 @@ wss.on("connection", (connection, req) => {
                 jwt.verify(token, jwtSecret, {}, (err, userData) => {
                     if(err){throw err;}
                     const {userId, username} = userData;
-                    console.log(username);
                     connection.userId = userId;
                     connection.username = username;
                     /*we collect every client's userId and username in wss*/
@@ -102,11 +102,19 @@ wss.on("connection", (connection, req) => {
             }
         }
     }
-    connection.on("message", (message) => {
+    connection.on("message", async (message) => {
         message = JSON.parse(message.toString());
         const {review, opinion} = message;
-        if(!!review && !!opinion ){
-            [...wss.clients].forEach(c => c.send(JSON.stringify({review, opinion, senderId: c.userId, senderName: c.username})))
+        if(review && opinion){
+            const reviewDoc = await ReviewModel.create({
+                sender: connection.userId,
+                review,
+                opinion,
+            });
+            [...wss.clients].forEach(c => c.send(JSON.stringify({
+                review, opinion, senderId: connection.userId,
+                senderName: connection.username, id: reviewDoc._id
+            })))
         }
     })
 })

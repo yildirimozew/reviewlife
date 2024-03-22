@@ -7,7 +7,7 @@ export default function Routes(){
     const {username, id} = useContext(UserContext);
     if(username){
         return(
-            <Page></Page>
+            <Page id={id}></Page>
         )
     }
     return(

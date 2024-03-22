@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react"
-import { UserContextProvider } from "./UserContext";
+import { uniqBy } from "lodash"
 
-export default function Page(){
+export default function Page({id}){
     const[reviewText, setReviewText] = useState("");
     const [ws, setWs] = useState(null);
     const [reviews, setReviews] = useState([]);
@@ -13,8 +13,10 @@ export default function Page(){
     }, []);
 
     function handleMessage(ev){
-        const {review, opinion, senderId, senderName} = JSON.parse(ev.data);
-        setReviews(prev => [...prev, {review: review, opinion: opinion, senderId: senderId, senderName: senderName}]);
+        const reviewData = JSON.parse(ev.data);
+        console.log(ev.data);
+        setReviews(prev => uniqBy([...prev, {...reviewData}], "id"));
+        console.log(reviews);
     }
 
     function sendReview(ev){
@@ -45,9 +47,9 @@ export default function Page(){
                 </form>
                 <div className="flex flex-wrap gap-8">
                     {reviews.map(review => (
-                        <div>
-                            <div>{review.senderName}</div>
-                            <div className={"p-8 w-full border-8 " + (review.opinion == "dislike" ? "border-red-200" : "border-green-200")}>
+                        <div className="w-full">
+                            <div className={"p-8 border-8 " + (review.senderId == id ? "border-yellow-200" : "border-black")}>{review.senderName} - {id}</div>
+                            <div className={"p-8 border-8 " + (review.opinion == "dislike" ? "border-red-200" : "border-green-200")}>
                                 {review.review}
                             </div>
                         </div>
