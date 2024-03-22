@@ -39,6 +39,14 @@ app.get("/profile", (req, res ) => {
     
 })
 
+app.get("/reviews", async (req, res) => {
+    const token = req.cookies?.token;
+    if(token){
+        const reviews = await ReviewModel.find({});
+        res.json(reviews);
+    }
+})
+
 app.post("/login", async (req, res) => {
     const {username, password} = req.body;
     const foundUser = await UserModel.findOne({username});
@@ -82,7 +90,6 @@ app.post("/register", async (req, res) => {
 const server = app.listen(4000);
 
 const wss = new ws.WebSocketServer({server});
-app.use(cookie_parser());
 
 wss.on("connection", (connection, req) => {
     
